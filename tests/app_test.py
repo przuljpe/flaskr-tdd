@@ -1,3 +1,4 @@
+import os
 import pytest
 import json
 from pathlib import Path
@@ -42,7 +43,8 @@ def test_index(client):
 
 def test_database(client):
     """initial test. ensure that the database exists"""
-    tester = Path("test.db").is_file()
+
+    tester = Path("project/flaskr.db").is_file()
     assert tester
 
 
