@@ -7,7 +7,6 @@ from project.app import app, db
 
 TEST_DB = "test.db"
 
-
 @pytest.fixture
 def client():
     BASE_DIR = Path(__file__).resolve().parent.parent
@@ -18,8 +17,8 @@ def client():
     with app.app_context():
         db.create_all()  # setup
         yield app.test_client()  # tests run here
+        #db.session.close()
         db.drop_all()  # teardown
-
 
 def login(client, username, password):
     """Login helper function"""
