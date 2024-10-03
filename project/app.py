@@ -107,8 +107,6 @@ def delete_entry(post_id):
 @login_required
 def add_entry():
     """Adds new post to the database."""
-    if not session.get("logged_in"):
-        abort(401)
     new_entry = models.Post(request.form["title"], request.form["text"])
     db.session.add(new_entry)
     db.session.commit()
