@@ -40,6 +40,7 @@ app = Flask(__name__)
 app.config.from_object(__name__)
 # init sqlalchemy
 db = SQLAlchemy(app)
+# db.create_all()
 
 from project import models
 
@@ -60,18 +61,6 @@ def login_required(f):
         return f(*args, **kwargs)
 
     return decorated_function
-
-
-@app.route("/add", methods=["POST"])
-def add_entry():
-    """Adds new post to the database."""
-    if not session.get("logged_in"):
-        abort(401)
-    new_entry = models.Post(request.form["title"], request.form["text"])
-    db.session.add(new_entry)
-    db.session.commit()
-    flash("New entry was successfully posted")
-    return redirect(url_for("index"))
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -112,6 +101,19 @@ def delete_entry(post_id):
     except Exception as e:
         result = {"status": 0, "message": repr(e)}
     return jsonify(result)
+
+
+@app.route("/add", methods=["POST"])
+@login_required
+def add_entry():
+    """Adds new post to the database."""
+    if not session.get("logged_in"):
+        abort(401)
+    new_entry = models.Post(request.form["title"], request.form["text"])
+    db.session.add(new_entry)
+    db.session.commit()
+    flash("New entry was successfully posted")
+    return redirect(url_for("index"))
 
 
 @app.route("/search/", methods=["GET"])

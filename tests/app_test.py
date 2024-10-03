@@ -43,7 +43,7 @@ def test_index(client):
 def test_database(client):
     """initial test. ensure that the database exists"""
 
-    tester = Path("project/flaskr.db").is_file()
+    tester = Path(TEST_DB).is_file()
     assert tester
 
 
@@ -87,3 +87,25 @@ def test_delete_message(client):
     rv = client.get("/delete/1")
     data = json.loads(rv.data)
     assert data["status"] == 1
+
+
+def test_search(client):
+    """Ensure the correct messages are loaded"""
+    login(client, app.config["USERNAME"], app.config["PASSWORD"])
+    client.post("/add", data=dict(title="bruh", text="moment", follow_redirects=True))
+    client.post("/add", data=dict(title="nah", text="no", follow_redirects=True))
+    rv = client.get("/search/", query_string={"query": "mom"})
+    assert b"moment" in rv.data and b"nah" not in rv.data
+
+
+def test_required_login(client):
+    """Ensure the login required decorator works"""
+    rv = client.post(
+        "/add", data=dict(title="bruh", text="moment", follow_redirects=True)
+    )
+    assert rv.status_code == 401
+    login(client, app.config["USERNAME"], app.config["PASSWORD"])
+    rv = client.post(
+        "/add", data=dict(title="bruh", text="moment", follow_redirects=True)
+    )
+    assert rv.status_code != 401
